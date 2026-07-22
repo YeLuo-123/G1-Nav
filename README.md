@@ -202,3 +202,37 @@ Sim2Real 验证。
 
 本项目主体采用 [BSD-3-Clause](LICENSE)。AWS Small House 场景遵循仓库内
 `simulation/AWS_SMALL_HOUSE_LICENSE`。各 submodule 遵循其上游项目许可证。
+
+## 部署到真机
+
+项目中包含辅助脚本，用于将 Git 已跟踪的导航源码同步到 G1 并构建。实机地址
+已通过 Wi-Fi 确认为 `dev@10.11.32.162`：
+
+- 脚本路径： [scripts/deploy_to_fangqi.sh](scripts/deploy_to_fangqi.sh)
+
+用法示例：
+
+```bash
+# 只部署和构建，不启动运动控制
+./scripts/deploy_to_fangqi.sh dev@10.11.32.162 \
+  --remote-ws ~/g1nav_ws --ros2 humble
+
+# 实机上进行无运动输出验证（默认 connect_sdk:=false）
+ssh dev@10.11.32.162
+source /opt/ros/humble/setup.bash
+source ~/g1nav_ws/install/setup.bash
+ros2 launch g1pilot navigation_hardware.launch.py \
+  connect_sdk:=false use_rviz:=false
+```
+
+注意事项：
+
+- 请先确保可以通过 SSH 访问真机（使用密钥或密码）。
+- 目标主机需已安装相应的 ROS 2 发行版（例如 humble）与 `colcon` 构建工具。
+- 脚本只同步 Git 跟踪文件，并在远端运行 `colcon build`；不会删除或覆盖实机其他工作区。
+- `connect_sdk` 默认为 `false`，此时不连接运动 SDK，不可能输出运动指令。
+- 即使连接 SDK，机器人也默认未解锁，必须显式发布 `/g1pilot/hardware_enable`。
+- 实机首次运动前必须准备物理急停、安全员和清空的测试区域。
+
+实机运动控制使用 `eth10` 上的 Unitree 高层接口；ROS 2 和远程管理使用
+`wlan0`。不要将运动 DDS 接口改成 Wi-Fi 网卡。

@@ -23,6 +23,7 @@ setup(
             'launch/navigation_demo.launch.py',
             'launch/navigation_walk.launch.py',
             'launch/navigation_mapping.launch.py',
+            'launch/navigation_hardware.launch.py',
         ]),
 
         # URDF / XML
@@ -36,7 +37,10 @@ setup(
          ])),
 
         # Configuration Files
-        (f'share/{package_name}/config', ['config/slam_toolbox.yaml']),
+        (f'share/{package_name}/config', [
+            'config/slam_toolbox.yaml',
+            'config/slam_toolbox_hardware.yaml',
+        ]),
 
         # RViz
         (f'share/{package_name}/rviz',
@@ -57,6 +61,8 @@ setup(
             'nav2point = g1pilot.navigation.nav2point:main',
             'create_map = g1pilot.navigation.create_map:main',
             'navigation_sim = g1pilot.navigation.navigation_sim:main',
+            'g1_hardware_bridge = g1pilot.navigation.g1_hardware_bridge:main',
+            'g1_sensor_bridge = g1pilot.navigation.g1_sensor_bridge:main',
         ],
     },
 )
