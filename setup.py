@@ -40,6 +40,7 @@ setup(
         (f'share/{package_name}/config', [
             'config/slam_toolbox.yaml',
             'config/slam_toolbox_hardware.yaml',
+            'config/cartographer_g1.lua',
         ]),
 
         # RViz

@@ -35,6 +35,8 @@ class G1SensorBridge(Node):
         self.scan_period = 1.0 / float(
             self.get_parameter('scan_rate').value)
         self.last_scan_ns = 0
+        self.last_odom_stamp_ns = 0
+        self.last_scan_stamp_ns = 0
 
         qos = QoSProfile(depth=5)
         qos.reliability = ReliabilityPolicy.RELIABLE
@@ -64,6 +66,12 @@ class G1SensorBridge(Node):
     def on_odom(self, msg):
         out = Odometry()
         out.header = msg.header
+        stamp_ns = max(
+            self.get_clock().now().nanoseconds,
+            self.last_odom_stamp_ns + 1)
+        self.last_odom_stamp_ns = stamp_ns
+        out.header.stamp.sec = stamp_ns // 1_000_000_000
+        out.header.stamp.nanosec = stamp_ns % 1_000_000_000
         out.header.frame_id = str(self.get_parameter('output_frame').value)
         out.child_frame_id = 'base_footprint'
         out.pose = msg.pose
@@ -118,7 +126,12 @@ class G1SensorBridge(Node):
             np.minimum.at(ranges, indices, distance)
 
         scan = LaserScan()
-        scan.header.stamp = msg.header.stamp
+        stamp_ns = max(
+            self.get_clock().now().nanoseconds,
+            self.last_scan_stamp_ns + 1)
+        self.last_scan_stamp_ns = stamp_ns
+        scan.header.stamp.sec = stamp_ns // 1_000_000_000
+        scan.header.stamp.nanosec = stamp_ns % 1_000_000_000
         scan.header.frame_id = 'base_scan'
         scan.angle_min = -math.pi
         scan.angle_max = math.pi

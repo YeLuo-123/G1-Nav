@@ -26,10 +26,24 @@ def generate_launch_description():
             parameters=[{
                 'odom_topic': '/localization/odom',
                 'cloud_topic': '/cloud_registered_body',
-                'output_frame': 'map',
+                'output_frame': 'odom',
                 'min_height': -0.45,
                 'max_height': 0.80,
             }],
+            output='screen'),
+        Node(
+            package='cartographer_ros',
+            executable='cartographer_node',
+            arguments=[
+                '-configuration_directory', os.path.join(share, 'config'),
+                '-configuration_basename', 'cartographer_g1.lua',
+            ],
+            remappings=[('odom', '/lidar_odometry/pose_fixed')],
+            output='screen'),
+        Node(
+            package='cartographer_ros',
+            executable='cartographer_occupancy_grid_node',
+            arguments=['-resolution', '0.04', '-publish_period_sec', '0.5'],
             output='screen'),
         Node(
             package='g1pilot', executable='g1_hardware_bridge',
@@ -38,7 +52,7 @@ def generate_launch_description():
             package='g1pilot', executable='dijkstra_planner',
             parameters=[{
                 'odom_topic': '/lidar_odometry/pose_fixed',
-                'map_topic': '/g1_lidar_slam/map',
+                'map_topic': '/map',
             }],
             output='screen'),
         Node(
