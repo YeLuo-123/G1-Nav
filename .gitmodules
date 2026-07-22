@@ -1,0 +1,9 @@
+[submodule ".deps/unitree_rl_gym"]
+	path = .deps/unitree_rl_gym
+	url = https://github.com/unitreerobotics/unitree_rl_gym.git
+[submodule ".deps/aws-small-house"]
+	path = .deps/aws-small-house
+	url = https://github.com/aws-robotics/aws-robomaker-small-house-world.git
+[submodule ".deps/mujoco_menagerie"]
+	path = .deps/mujoco_menagerie
+	url = https://github.com/google-deepmind/mujoco_menagerie.git
