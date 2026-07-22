@@ -27,6 +27,7 @@ class G1SensorBridge(Node):
         self.declare_parameter('range_max', 8.0)
         self.declare_parameter('scan_rate', 10.0)
         self.declare_parameter('laser_height', 0.65)
+        self.declare_parameter('output_frame', 'odom')
         self.min_height = float(self.get_parameter('min_height').value)
         self.max_height = float(self.get_parameter('max_height').value)
         self.range_min = float(self.get_parameter('range_min').value)
@@ -63,7 +64,7 @@ class G1SensorBridge(Node):
     def on_odom(self, msg):
         out = Odometry()
         out.header = msg.header
-        out.header.frame_id = 'odom'
+        out.header.frame_id = str(self.get_parameter('output_frame').value)
         out.child_frame_id = 'base_footprint'
         out.pose = msg.pose
         out.pose.pose.position.z = 0.0

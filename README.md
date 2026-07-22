@@ -221,6 +221,9 @@ Sim2Real 验证。
 ssh dev@10.11.32.162
 source /opt/ros/humble/setup.bash
 source ~/g1nav_ws/install/setup.bash
+export ROS_DOMAIN_ID=50
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export ROS_DISABLE_DAEMON=1
 ros2 launch g1pilot navigation_hardware.launch.py \
   connect_sdk:=false use_rviz:=false
 ```
@@ -236,3 +239,15 @@ ros2 launch g1pilot navigation_hardware.launch.py \
 
 实机运动控制使用 `eth10` 上的 Unitree 高层接口；ROS 2 和远程管理使用
 `wlan0`。不要将运动 DDS 接口改成 Wi-Fi 网卡。
+
+实机导航复用 G1 已有的 Mid-360/Faster-LIO 感知链：
+
+- `/localization/odom`：地图坐标系定位；
+- `/cloud_registered_body`：机器人坐标系局部点云；
+- `/g1_lidar_slam/map`：二维占据地图。
+
+启动导航前先启动不包含运动控制的雷达建图链：
+
+```bash
+sudo bash /home/dev/g1_lidar_mapping_docker.sh start
+```

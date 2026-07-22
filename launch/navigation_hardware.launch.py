@@ -4,16 +4,14 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
     share = get_package_share_directory('g1pilot')
-    slam_share = get_package_share_directory('slam_toolbox')
     connect_sdk = LaunchConfiguration('connect_sdk')
     use_rviz = LaunchConfiguration('use_rviz')
     with open(os.path.join(
@@ -25,21 +23,23 @@ def generate_launch_description():
         DeclareLaunchArgument('use_rviz', default_value='false'),
         Node(
             package='g1pilot', executable='g1_sensor_bridge',
+            parameters=[{
+                'odom_topic': '/localization/odom',
+                'cloud_topic': '/cloud_registered_body',
+                'output_frame': 'map',
+                'min_height': -0.45,
+                'max_height': 0.80,
+            }],
             output='screen'),
         Node(
             package='g1pilot', executable='g1_hardware_bridge',
             parameters=[{'connect_sdk': connect_sdk}], output='screen'),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(
-                slam_share, 'launch', 'online_async_launch.py')),
-            launch_arguments={
-                'use_sim_time': 'false',
-                'slam_params_file': os.path.join(
-                    share, 'config', 'slam_toolbox_hardware.yaml'),
-            }.items()),
         Node(
             package='g1pilot', executable='dijkstra_planner',
-            parameters=[{'odom_topic': '/lidar_odometry/pose_fixed'}],
+            parameters=[{
+                'odom_topic': '/lidar_odometry/pose_fixed',
+                'map_topic': '/g1_lidar_slam/map',
+            }],
             output='screen'),
         Node(
             package='g1pilot', executable='nav2point',
